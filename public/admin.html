@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Razor & Craft</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <main class="container">
+    <!-- Card Titolo -->
+    <div class="card">
+      <div class="card-header">
+        <h1><i class="fas fa-calendar-alt"></i> Gestione Prenotazioni</h1>
+      </div>
+    </div>
+
+    <!-- Card Statistiche -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-bar"></i> Statistiche</h2>
+      </div>
+      <div class="card-body">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="todayBookings">0</div>
+            <div class="stat-label">Prenotazioni Oggi</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalBookings">0</div>
+            <div class="stat-label">Prenotazioni Totali</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="ninoBookings">0</div>
+            <div class="stat-label">Prenotazioni Nino</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="antonioBookings">0</div>
+            <div class="stat-label">Prenotazioni Antonio</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Filtri -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-filter"></i> Filtri</h2>
+      </div>
+      <div class="card-body">
+        <div class="filters-grid">
+          <div class="filter-group">
+            <label for="filterDate"><i class="fas fa-calendar-day"></i> Data</label>
+            <input type="date" id="filterDate" class="form-control">
+          </div>
+          <div class="filter-group">
+            <label for="filterBarber"><i class="fas fa-user"></i> Barbiere</label>
+            <select id="filterBarber" class="form-control">
+              <option value="">Tutti</option>
+              <option value="Nino">Nino</option>
+              <option value="Antonio">Antonio</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="filterService"><i class="fas fa-cut"></i> Servizio</label>
+            <select id="filterService" class="form-control">
+              <option value="">Tutti</option>
+              <option value="Taglio Classico">Taglio Classico</option>
+              <option value="Taglio Moderno">Taglio Moderno</option>
+              <option value="Barba">Barba</option>
+              <option value="Taglio + Barba">Taglio + Barba</option>
+              <option value="Servizio Completo">Servizio Completo</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <button id="refreshBtn" class="btn btn-primary">
+              <i class="fas fa-sync-alt"></i> Aggiorna
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Prenotazioni -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-list"></i> Elenco Prenotazioni</h2>
+      </div>
+      <div class="card-body">
+        <div id="bookingsList">
+          <div class="no-bookings">
+            <i class="fas fa-calendar-times"></i>
+            <p>Nessuna prenotazione trovata</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h3>Razor & Craft</h3>
+          <p>Via del Barbiere 15, Milano<br>Orari: 9:00 - 19:00 (Chiuso il Lunedi)</p>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Contatti</h3>
+          <p><i class="fas fa-phone"></i> +39 02 1234567</p>
+          <p><i class="fas fa-envelope"></i> info@razorcraft.com</p>
+        </div>
+      </div>
+      
+      <div class="copyright">
+        <p>&copy; 2023 Razor & Craft. Tutti i diritti riservati.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/admin.js"></script>
+  <script src="js/navigation.js"></script>
+</body>
+</html>

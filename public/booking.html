@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prenotazione | Razor & Craft</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="glass-nav">
+        <div class="container">
+            <a href="index.html" class="logo">Razor & Craft</a>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="booking.html" class="active">Prenota</a></li>
+                    <li><a href="/admin" class="admin-link">Admin</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="nav-overlay"></div>
+    </header>
+
+    <section class="booking-section">
+        <div class="container">
+            <div class="booking-container">
+                <div class="booking-header">
+                    <h2>Prenota il tuo appuntamento</h2>
+                    <p>Scegli tra i nostri maestri barbieri</p>
+                </div>
+                
+                <form id="bookingForm" class="booking-form">
+                    <div class="form-group">
+                        <label for="name">Nome</label>
+                        <input type="text" id="name" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="surname">Cognome</label>
+                        <input type="text" id="surname" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Telefono</label>
+                        <input type="tel" id="phone" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="barber">Barbiere</label>
+                        <select id="barber" class="form-control" required>
+                            <option value="">-- Seleziona --</option>
+                            <option value="Nino">Nino - Specialista in tagli classici</option>
+                            <option value="Antonio">Antonio - Esperto in tagli moderni</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                    <div class="form-group">
+                        <label for="date">Data</label>
+                        <input type="date" id="date" class="form-control" required min="" max="">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="time">Orario</label>
+                        <select id="time" class="form-control" required disabled>
+                            <option value="">-- Seleziona prima la data --</option>
+                        </select>
+                    </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="service">Servizio</label>
+                        <select id="service" class="form-control" required>
+                            <option value="">-- Seleziona --</option>
+                            <option value="Taglio Classico">Taglio </option>
+                            <option value="Barba">Barba </option>
+                            <option value="Taglio + Barba">Taglio + Barba</option>
+                        </select>
+                    </div>
+                    <div class="form-group terms-container">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="acceptTerms" required>
+                        <label for="acceptTerms">
+                            Accetto i <a href="/use_term.html" target="_blank">Termini di Servizio</a> 
+                            e l'<a href="/privacy.html" target="_blank">Informativa Privacy</a>
+                        </label>
+                    </div>
+                    <div class="error-message" id="termsError"></div>
+                </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-calendar-check"></i> Conferma Prenotazione
+                    </button>
+                </form>
+                
+                <div id="bookingSuccess" class="booking-success hidden">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Prenotazione Confermata!</h3>
+                    <p>Riceverai una mail di conferma con tutti i dettagli del tuo appuntamento.</p>
+                    <a href="index.html" class="btn btn-primary">Torna alla Home</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>Razor & Craft</h3>
+                    <p>Via del Barbiere 15, Milano<br>Orari: 9:00 - 19:00 (Chiuso il Lunedi)</p>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>Contatti</h3>
+                    <p><i class="fas fa-phone"></i> +39 02 1234567</p>
+                    <p><i class="fas fa-envelope"></i> info@razorcraft.com</p>
+                </div>
+                
+                <div class="footer-col">
+                    <h3>Segui</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 Razor & Craft. Tutti i diritti riservati.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/booking.js"></script>
+    <script src="js/navigation.js"></script>
+</body>
+</html>
