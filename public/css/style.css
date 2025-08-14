@@ -590,7 +590,7 @@ footer {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 /* Admin Dashboard Styles */
@@ -875,6 +875,23 @@ footer {
     .footer-col {
         margin-bottom: 1rem;
     }
+    .footer-col .social-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.5rem;
+}
+
+.footer-col .social-links a {
+  font-size: 1.7rem;
+  color: #2e2e5e;
+  transition: color 0.2s;
+}
+
+.footer-col .social-links a:hover {
+  color: #f44336;
+}
 }
 
 @media (max-width: 576px) {
@@ -966,4 +983,113 @@ select:disabled {
 
 .error-message.show {
     display: block;
+}
+
+/* Card prenotazione admin */
+.admin-booking-card {
+  background: rgba(255,255,255,0.95);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(26,26,46,0.10), 0 1.5px 6px rgba(26,26,46,0.08);
+  padding: 1.2rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.2s ease;
+  border-left: 5px solid #2e2e5e;
+  font-family: 'Montserrat', sans-serif;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-booking-card:hover {
+  box-shadow: 0 8px 32px rgba(26,26,46,0.16), 0 3px 12px rgba(26,26,46,0.12);
+  transform: translateY(-2px);
+}
+
+.admin-booking-card .booking-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.admin-booking-card .booking-header i {
+  color: #2e2e5e;
+  font-size: 1.5rem;
+  margin-right: 0.7rem;
+}
+
+.admin-booking-card .booking-actions {
+  position: relative;
+  top: auto;
+  right: auto;
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  justify-content: flex-end;
+}
+
+.admin-booking-card .booking-actions button {
+  background: #f44336;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.admin-booking-card .booking-actions button:hover {
+  background: #b71c1c;
+}
+
+/* Media Queries per dispositivi diversi */
+@media (min-width: 768px) {
+  .admin-booking-card {
+    padding: 1.5rem 1.2rem;
+  }
+  
+  .admin-booking-card .booking-actions {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.2rem;
+    margin-top: 0;
+  }
+  
+  .admin-booking-card .booking-actions button {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-booking-card {
+    border-radius: 12px;
+    padding: 1rem;
+  }
+  
+  .admin-booking-card .booking-header i {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+  }
+  
+  .admin-booking-card .booking-actions {
+    gap: 0.3rem;
+  }
+  
+  .admin-booking-card .booking-actions button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+  }
+}
+.admin-booking-card .booking-info {
+  margin-bottom: 0.3rem;
+  color: #222;
+  font-size: 1.05rem;
+}
+
+.admin-booking-card .booking-label {
+  color: #888;
+  font-size: 0.92rem;
+  margin-right: 0.3rem;
 }

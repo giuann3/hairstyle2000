@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Razor & Craft</title>
+  <title>Admin - HairStyle2000</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
@@ -64,17 +64,7 @@
               <option value="Antonio">Antonio</option>
             </select>
           </div>
-          <div class="filter-group">
-            <label for="filterService"><i class="fas fa-cut"></i> Servizio</label>
-            <select id="filterService" class="form-control">
-              <option value="">Tutti</option>
-              <option value="Taglio Classico">Taglio Classico</option>
-              <option value="Taglio Moderno">Taglio Moderno</option>
-              <option value="Barba">Barba</option>
-              <option value="Taglio + Barba">Taglio + Barba</option>
-              <option value="Servizio Completo">Servizio Completo</option>
-            </select>
-          </div>
+
           <div class="filter-group">
             <button id="refreshBtn" class="btn btn-primary">
               <i class="fas fa-sync-alt"></i> Aggiorna
@@ -100,28 +90,32 @@
     </div>
   </main>
 
-  <footer>
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-col">
-          <h3>Razor & Craft</h3>
-          <p>Via del Barbiere 15, Milano<br>Orari: 9:00 - 19:00 (Chiuso il Lunedi)</p>
-        </div>
-        
-        <div class="footer-col">
-          <h3>Contatti</h3>
-          <p><i class="fas fa-phone"></i> +39 02 1234567</p>
-          <p><i class="fas fa-envelope"></i> info@razorcraft.com</p>
-        </div>
-      </div>
-      
-      <div class="copyright">
-        <p>&copy; 2023 Razor & Craft. Tutti i diritti riservati.</p>
-      </div>
-    </div>
-  </footer>
 
-  <script src="js/admin.js"></script>
+
+ 
+      <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+  // Configurazione Firebase 
+  const firebaseConfig = {
+apiKey: "AIzaSyAC1VwxUwfk_Kbff8f0h-KtcQV3z3Izs_A",
+  authDomain: "hairstyle2000-db0e8.firebaseapp.com",
+  databaseURL: "https://hairstyle2000-db0e8-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "hairstyle2000-db0e8",
+  storageBucket: "hairstyle2000-db0e8.firebasestorage.app",
+  messagingSenderId: "312036850582",
+  appId: "1:312036850582:web:116111861902d35d7f3bb7",
+  measurementId: "G-2QV7ZYJ4XL"
+  };
+  
+
+  // Inizializza Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
+   <script src="js/admin.js"></script>
   <script src="js/navigation.js"></script>
+
+  
 </body>
 </html>

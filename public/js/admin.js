@@ -26,20 +26,22 @@ document.addEventListener('DOMContentLoaded', function() {
     filterService.addEventListener('change', applyFilters);
 
     // Funzione per caricare le prenotazioni dal server
-    async function loadBookings() {
-        try {
-            const response = await fetch('/api/bookings');
-            if (!response.ok) throw new Error('Errore nel caricamento');
-            
-            allBookings = await response.json();
-            updateStatistics();
-            applyFilters();
-            
-        } catch (error) {
-            console.error('Errore:', error);
-            showError('Impossibile caricare le prenotazioni');
-        }
+async function loadBookings() {
+    console.log("Firebase:", typeof firebase, firebase);
+    try {
+        // Leggi tutte le prenotazioni da Firestore
+        const snapshot = await firebase.firestore().collection("bookings").get();
+        allBookings = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+        updateStatistics();
+        applyFilters();
+    } catch (error) {
+        console.error('Errore:', error);
+        showError('Impossibile caricare le prenotazioni');
     }
+}
 
     // Funzione per aggiornare le statistiche
     function updateStatistics() {
@@ -73,11 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
             filteredBookings = filteredBookings.filter(booking => booking.barber === filterBarber.value);
         }
         
-        // Filtro servizio
-        if (filterService.value) {
-            filteredBookings = filteredBookings.filter(booking => booking.service === filterService.value);
-        }
-        
+ 
         renderBookings();
     }
 
@@ -101,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Crea le card delle prenotazioni
         filteredBookings.forEach(booking => {
             const bookingCard = document.createElement('div');
-            bookingCard.className = 'booking-card';
+            bookingCard.className = 'admin-booking-card';
             
             // Formatta la data
             const formattedDate = formatItalianDate(booking.date);
@@ -172,23 +170,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Funzione per eliminare una prenotazione
     async function deleteBooking(bookingId) {
-        if (!confirm('Sei sicuro di voler eliminare questa prenotazione?')) return;
-        
-        try {
-            const response = await fetch(`/api/bookings/${bookingId}`, {
-                method: 'DELETE'
-            });
-            
-            if (!response.ok) throw new Error('Errore nell\'eliminazione');
-            
-            // Ricarica le prenotazioni
-            loadBookings();
-            
-        } catch (error) {
-            console.error('Errore:', error);
-            showError('Impossibile eliminare la prenotazione');
-        }
+    if (!confirm('Sei sicuro di voler eliminare questa prenotazione?')) return;
+    try {
+        await firebase.firestore().collection("bookings").doc(bookingId).delete();
+        loadBookings();
+    } catch (error) {
+        console.error('Errore:', error);
+        showError('Impossibile eliminare la prenotazione');
     }
+}
 
     // Funzione per mostrare errori
     function showError(message) {
