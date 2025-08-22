@@ -4,9 +4,180 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin - HairStyle2000</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap">
+  <!-- Includi i font e le icone -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Includi il CSS personalizzato -->
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Stili specifici per il calendario */
+    .calendar-container {
+      overflow-x: auto;
+      margin-top: 20px;
+    }
+    
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .week-navigation {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .current-week-range {
+      font-weight: bold;
+      min-width: 250px;
+      text-align: center;
+    }
+    
+    .week-days-header {
+      display: grid;
+      grid-template-columns: 80px repeat(7, 1fr);
+      background: #f8f9fa;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .time-column-header {
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+      background: #2c3e50;
+      color: white;
+    }
+    
+    .day-header {
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+      background: #2c3e50;
+      color: white;
+    }
+    
+    .week-grid {
+      display: grid;
+      grid-template-columns: 80px repeat(7, 1fr);
+      grid-auto-rows: 60px;
+      border: 1px solid #dee2e6;
+      border-top: none;
+    }
+    
+    .time-slot {
+      border-right: 1px solid #dee2e6;
+      border-bottom: 1px solid #dee2e6;
+      padding: 2px;
+      position: relative;
+      min-height: 60px;
+    }
+    
+    .time-label {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      font-size: 0.7rem;
+      color: #6c757d;
+    }
+    
+    .booking-slot {
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      top: 2px;
+      bottom: 2px;
+      border-radius: 4px;
+      padding: 5px;
+      font-size: 0.8rem;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .booking-slot:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      z-index: 10;
+    }
+    
+    .booking-nino {
+      background: #d4e6f1;
+      border-left: 4px solid #3498db;
+    }
+    
+    .booking-antonio {
+      background: #d1f2eb;
+      border-left: 4px solid #2ecc71;
+    }
+    
+    .booking-details {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      width: 90%;
+      max-width: 500px;
+      display: none;
+    }
+    
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      display: none;
+    }
+    
+    .view-toggle {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    
+    .view-btn {
+      padding: 10px 20px;
+      background: #ddd;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .view-btn.active {
+      background: #3498db;
+      color: white;
+    }
+    
+    .view-btn:first-child {
+      border-radius: 4px 0 0 4px;
+    }
+    
+    .view-btn:last-child {
+      border-radius: 0 4px 4px 0;
+    }
+    
+    .detail-row {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .detail-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
 
@@ -45,20 +216,18 @@
       </div>
     </div>
 
-    <!-- Card Filtri -->
+    <!-- Card Calendario -->
     <div class="card">
       <div class="card-header">
-        <h2><i class="fas fa-filter"></i> Filtri</h2>
+        <h2><i class="fas fa-calendar-alt"></i> Calendario Prenotazioni</h2>
       </div>
       <div class="card-body">
-        <div class="filters-grid">
+        
+        <div class="filters">
+        
           <div class="filter-group">
-            <label for="filterDate"><i class="fas fa-calendar-day"></i> Data</label>
-            <input type="date" id="filterDate" class="form-control">
-          </div>
-          <div class="filter-group">
-            <label for="filterBarber"><i class="fas fa-user"></i> Barbiere</label>
-            <select id="filterBarber" class="form-control">
+            <label for="filterBarber">Barbiere:</label>
+            <select id="filterBarber" class="filter-input">
               <option value="">Tutti</option>
               <option value="Nino">Nino</option>
               <option value="Antonio">Antonio</option>
@@ -66,56 +235,129 @@
           </div>
 
           <div class="filter-group">
-            <button id="refreshBtn" class="btn btn-primary">
+        <button class="btn btn-success" id="addManualBookingBtn">
+            <i class="fas fa-plus-circle"></i> Aggiungi Prenotazione
+        </button>
+          </div>
+
+
+          <div class="filter-group">
+            <button class="btn btn-primary" id="refreshBtn">
               <i class="fas fa-sync-alt"></i> Aggiorna
             </button>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Card Prenotazioni -->
-    <div class="card">
-      <div class="card-header">
-        <h2><i class="fas fa-list"></i> Elenco Prenotazioni</h2>
-      </div>
-      <div class="card-body">
-        <div id="bookingsList">
-          <div class="no-bookings">
-            <i class="fas fa-calendar-times"></i>
-            <p>Nessuna prenotazione trovata</p>
+        
+        
+        <!-- Vista Calendario (unica vista) -->
+        <div id="calendarView">
+          <div class="calendar-header">
+            <div class="week-navigation">
+              <button class="btn btn-primary" id="prevWeek"><i class="fas fa-chevron-left"></i></button>
+              <div class="current-week-range" id="currentWeekRange"></div>
+              <button class="btn btn-primary" id="nextWeek"><i class="fas fa-chevron-right"></i></button>
+  
+          <div class="calendar-container">
+            <div class="week-days-header">
+              <div class="time-column-header">Orario</div>
+              <!-- I giorni della settimana verranno inseriti qui via JavaScript -->
+            </div>
+            
+            <div class="week-grid">
+              <!-- Le fasce orarie e le prenotazioni verranno inserite qui via JavaScript -->
+            </div>
           </div>
         </div>
       </div>
     </div>
   </main>
 
+  <!-- Overlay e Dettagli Prenotazione -->
+  <div class="overlay" id="overlay"></div>
+  <div class="booking-details" id="bookingDetails"></div>
 
+  <!-- Includi le librerie Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
- 
-      <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <!-- Includi lo script personalizzato -->
 
-<script>
-  // Configurazione Firebase 
-  const firebaseConfig = {
-apiKey: "AIzaSyAC1VwxUwfk_Kbff8f0h-KtcQV3z3Izs_A",
-  authDomain: "hairstyle2000-db0e8.firebaseapp.com",
-  databaseURL: "https://hairstyle2000-db0e8-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "hairstyle2000-db0e8",
-  storageBucket: "hairstyle2000-db0e8.firebasestorage.app",
-  messagingSenderId: "312036850582",
-  appId: "1:312036850582:web:116111861902d35d7f3bb7",
-  measurementId: "G-2QV7ZYJ4XL"
-  };
-  
-
-  // Inizializza Firebase
-  firebase.initializeApp(firebaseConfig);
-</script>
-   <script src="js/admin.js"></script>
+    <script src="js/admin.js"></script>
   <script src="js/navigation.js"></script>
+  <div id="addBookingModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close-btn" id="closeAddModal">&times;</span>
+      <h2><i class="fas fa-plus-circle"></i> Aggiungi Prenotazione Manuale</h2>
+      <form id="addBookingForm">
+          <div class="form-row">
+              <div class="form-group">
+                  <label for="addName">Nome *</label>
+                  <input type="text" id="addName" required>
+              </div>
+              <div class="form-group">
+                  <label for="addSurname">Cognome *</label>
+                  <input type="text" id="addSurname" required>
+              </div>
+          </div>
+          
+          <div class="form-row">
+              <div class="form-group">
+                  <label for="addPhone">Telefono *</label>
+                  <input type="tel" id="addPhone" required>
+              </div>
+              
+          </div>
+          
+          <div class="form-row">
+              <div class="form-group">
+                  <label for="addDate">Data *</label>
+                  <input type="date" id="addDate" required>
+              </div>
+<div class="form-group">
+                  <label for="addTime">Ora *</label>
+                  <select id="addTime" required>
+                      <option value="">Seleziona ora</option>
+                      <!-- Le opzioni verranno caricate dinamicamente da JavaScript -->
+                  </select>
+            </div>
+          
+          <div class="form-row">
+              <div class="form-group">
+                  <label for="addBarber">Barbiere *</label>
+                  <select id="addBarber" required>
+                      <option value="">Seleziona barbiere</option>
+                      <option value="Nino">Nino</option>
+                      <option value="Antonio">Antonio</option>
+                  </select>
+              </div>
+              <div class="form-group">
+                  <label for="addService">Servizio *</label>
+                  <select id="addService" required>
+                      <option value="">Seleziona servizio</option>
+                      <option value="Taglio">Taglio</option>
+                      <option value="Taglio e shampoo">Taglio e shampoo</option>
+                      <option value="Taglio e barba">Taglio e barba</option>
+                      <option value="Barba">Barba</option>
+                      <option value="Taglio barba shampoo (completo)">Taglio barba shampoo (completo)</option>
+                  </select>
+              </div>
 
-  
+          </div>
+          
+
+          
+          <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save"></i> Salva Prenotazione
+              </button>
+              <button type="button" class="btn btn-secondary" id="cancelAddBooking">
+                  <i class="fas fa-times"></i> Annulla
+              </button>
+          </div>
+      </form>
+    </div>
+</div>
+
+
 </body>
 </html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="css/style.css">
+    <title>Login Admin - HairStyle2000</title>
+</head>
+<body>
+<header class="glass-nav"   
+style="
+    background-color: rgba(26, 26, 46,0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    padding: 10px 0;
+    color: white;
+  ">
+        <div class="container">
+            <a href="index.html" class="logo">HairStyle2000</a>
+            <div class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html" class="active">Home</a></li>
+                    <li><a href="booking.html">Prenota</a></li>
+                    <li><a href="login.html" class="admin-link">Admin</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+ <div id="login-container" class="container">
+ <h2>Accedi all'area Admin</h2>
+ <input type="password" id="password-input" placeholder="Password">
+ <button id="login-button">Accedi</button>
+ <p id="error-message" class="error-message"></p>
+ </div>
+ <script>
+  const passwordInput = document.getElementById('password-input');
+  const loginButton = document.getElementById('login-button');
+  const errorMessage = document.getElementById('error-message');
+  // !! ATTENZIONE: Questo metodo è INSEGURO. La password è visibile a tutti nel codice sorgente.
+  const correctPassword = 'password123'; 
+  loginButton.addEventListener('click', () => {
+   if (passwordInput.value === correctPassword) {
+    // Reindirizza alla pagina admin.html dopo il login
+    window.location.href = 'admin.html';
+   } else {
+    errorMessage.textContent = 'Password errata.';
+   }
+  });
+ </script>
+</body>
+</html>

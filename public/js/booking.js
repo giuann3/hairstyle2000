@@ -66,13 +66,28 @@ async function updateAvailableTimes() {
     const bookedTimes = snapshot.docs.map(doc => doc.data().time);
 
     // Genera tutti gli slot orari
-    const times = [];
-    for (let hour = 9; hour < 13; hour++) {
-        times.push(`${hour.toString().padStart(2, '0')}:00`);
+const times = [];
+// Morning slots: 9:00 to 12:30
+for (let hour = 9; hour < 13; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+        if (hour === 12 && minute > 0) {
+            continue; // Stop at 12:30
+        }
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        times.push(timeString);
     }
-    for (let hour = 15; hour < 20; hour++) {
-        times.push(`${hour.toString().padStart(2, '0')}:00`);
+}
+
+// Afternoon slots: 15:00 to 20:30
+for (let hour = 15; hour < 21; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+        if (hour === 20 && minute > 30) {
+            continue; // Stop at 20:30
+        }
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        times.push(timeString);
     }
+}
 
     // Aggiungi le opzioni, disabilitando quelle già prenotate
     times.forEach(time => {
@@ -88,19 +103,7 @@ async function updateAvailableTimes() {
 
     timeSelect.disabled = false;
 }
-    function generateTimeSlots() {
-        // Mattina: 9-12
-        for (let hour = 9; hour < 13; hour++) {
-            const time = `${hour.toString().padStart(2, '0')}:00`;
-            timeSelect.appendChild(new Option(time, time));
-        }
 
-        // Pomeriggio: 15-20
-        for (let hour = 15; hour < 21; hour++) {
-            const time = `${hour.toString().padStart(2, '0')}:00`;
-            timeSelect.appendChild(new Option(time, time));
-        }
-    }
 
     async function handleFormSubmit() {
         const submitBtn = bookingForm.querySelector('button[type="submit"]');
@@ -122,7 +125,7 @@ async function updateAvailableTimes() {
             const formData = {
                 name: document.getElementById('name').value.trim(),
                 surname: document.getElementById('surname').value.trim(),
-                email: document.getElementById('email').value.trim(),
+                
                 phone: document.getElementById('phone').value.trim(),
                 barber: barberSelect.value,
                 date: dateInput.value,
@@ -173,7 +176,7 @@ if (!snapshot.empty) {
         clearErrors();
 
         let isValid = true;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
         const phoneRegex = /^[0-9]{9,15}$/;
 
         // Validazione nome
@@ -188,15 +191,7 @@ if (!snapshot.empty) {
             isValid = false;
         }
 
-        // Validazione email
-        const email = document.getElementById('email').value.trim();
-        if (!email) {
-            showErrorForField('email', 'L\'email è obbligatoria');
-            isValid = false;
-        } else if (!emailRegex.test(email)) {
-            showErrorForField('email', 'Inserisci un\'email valida');
-            isValid = false;
-        }
+        //
 
         // Validazione telefono
         const phone = document.getElementById('phone').value.trim();
