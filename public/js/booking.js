@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inizializzazione
     initDatePicker();
     setupEventListeners();
+    // Aggiungiamo la funzione per disabilitare i giorni non disponibili
+    disableUnavailableDays();
+
 
     function initDatePicker() {
         // Imposta la data minima (domani) e massima (3 mesi da oggi)
@@ -23,8 +26,43 @@ document.addEventListener('DOMContentLoaded', function() {
         dateInput.max = formatDate(maxDate);
     }
 
+    // Funzione per disabilitare i giorni non disponibili
+    async function disableUnavailableDays() {
+        try {
+            const db = firebase.firestore();
+            const snapshot = await db.collection("unavailable_days").get();
+            
+            // Estrai tutte le date non disponibili
+            const unavailableDates = [];
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.date) {
+                    unavailableDates.push(data.date);
+                }
+            });
+            
+            // Aggiungi l'event listener per il cambio data
+            dateInput.addEventListener('change', function() {
+                const selectedDate = dateInput.value;
+                
+                // Controlla se la data selezionata è tra quelle non disponibili
+                if (unavailableDates.includes(selectedDate)) {
+                    showErrorForField('date', 'Questa data non è disponibile per prenotazioni');
+                    timeSelect.innerHTML = '<option value="">-- Data non disponibile --</option>';
+                    timeSelect.disabled = true;
+                } else {
+                    // Se la data è disponibile, aggiorna gli orari
+                    updateAvailableTimes();
+                }
+            });
+            
+        } catch (error) {
+            console.error("Errore nel caricamento dei giorni non disponibili:", error);
+        }
+    }
+
 function setupEventListeners() {
-    dateInput.addEventListener('change', updateAvailableTimes);
+    // Rimuovi il listener change dalla data poiché ora è gestito in disableUnavailableDays
     barberSelect.addEventListener('change', updateAvailableTimes);
 
     bookingForm.addEventListener('submit', async function(e) {
@@ -66,28 +104,32 @@ async function updateAvailableTimes() {
     const bookedTimes = snapshot.docs.map(doc => doc.data().time);
 
     // Genera tutti gli slot orari
-const times = [];
-// Morning slots: 9:00 to 12:30
-for (let hour = 9; hour < 13; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) {
-        if (hour === 12 && minute > 0) {
-            continue; // Stop at 12:30
+    const times = [];
+    // Morning slots: 9:00 to 12:30
+    for (let hour = 9; hour < 13; hour++) {
+        for (let minute = 0; minute < 60; minute += 30) {
+            if (hour === 12 && minute > 0) {
+                continue; // Stop at 12:30
+            }
+            const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+            times.push(timeString);
         }
-        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        times.push(timeString);
     }
-}
 
-// Afternoon slots: 15:00 to 20:30
-for (let hour = 15; hour < 21; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) {
-        if (hour === 20 && minute > 30) {
-            continue; // Stop at 20:30
+    // Afternoon slots: 15:00 to 20:30
+    for (let hour = 15; hour < 21; hour++) {
+        for (let minute = 0; minute < 60; minute += 30) {
+            if (hour === 20 && minute > 30) {
+                continue; // Stop at 20:30
+            }
+            // Aggiungi la condizione per Nino qui
+            if (selectedBarber === 'Nino' && hour === 15 && (minute === 0 || minute === 30)) {
+                continue;
+            }
+            const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+            times.push(timeString);
         }
-        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        times.push(timeString);
     }
-}
 
     // Aggiungi le opzioni, disabilitando quelle già prenotate
     times.forEach(time => {
@@ -103,7 +145,6 @@ for (let hour = 15; hour < 21; hour++) {
 
     timeSelect.disabled = false;
 }
-
 
     async function handleFormSubmit() {
         const submitBtn = bookingForm.querySelector('button[type="submit"]');
@@ -121,11 +162,24 @@ for (let hour = 15; hour < 21; hour++) {
                 return;
             }
 
+            // Controlla se la data è tra quelle non disponibili
+            const selectedDate = dateInput.value;
+            const db = firebase.firestore();
+            const unavailableSnapshot = await db.collection("unavailable_days")
+                .where("date", "==", selectedDate)
+                .get();
+                
+            if (!unavailableSnapshot.empty) {
+                showError('Questa data non è più disponibile per prenotazioni. Scegli un\'altra data.');
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+                return;
+            }
+
             // Prepara i dati
             const formData = {
                 name: document.getElementById('name').value.trim(),
                 surname: document.getElementById('surname').value.trim(),
-                
                 phone: document.getElementById('phone').value.trim(),
                 barber: barberSelect.value,
                 date: dateInput.value,
@@ -136,19 +190,18 @@ for (let hour = 15; hour < 21; hour++) {
 
             // --- CONTROLLO DISPONIBILITÀ FIRESTORE ---
             console.log("DEBUG - Dati controllo:", formData.barber, formData.date, formData.time);
-const db = firebase.firestore();
-const snapshot = await db.collection("bookings")
-    .where("barber", "==", formData.barber)
-    .where("date", "==", formData.date)
-    .where("time", "==", formData.time)
-    .get();
+            const snapshot = await db.collection("bookings")
+                .where("barber", "==", formData.barber)
+                .where("date", "==", formData.date)
+                .where("time", "==", formData.time)
+                .get();
 
-if (!snapshot.empty) {
-    showError('Orario già prenotato per questo barbiere. Scegli un altro orario.');
-    submitBtn.innerHTML = originalBtnText;
-    submitBtn.disabled = false;
-    return;
-}
+            if (!snapshot.empty) {
+                showError('Orario già prenotato per questo barbiere. Scegli un altro orario.');
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+                return;
+            }
             // --- FINE CONTROLLO DISPONIBILITÀ ---
 
             // Salva la prenotazione
@@ -190,8 +243,6 @@ if (!snapshot.empty) {
             showErrorForField('surname', 'Il cognome è obbligatorio');
             isValid = false;
         }
-
-        //
 
         // Validazione telefono
         const phone = document.getElementById('phone').value.trim();

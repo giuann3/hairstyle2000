@@ -1,5 +1,5 @@
-  const firebaseConfig = {
-apiKey: "AIzaSyAC1VwxUwfk_Kbff8f0h-KtcQV3z3Izs_A",
+const firebaseConfig = {
+  apiKey: "AIzaSyAC1VwxUwfk_Kbff8f0h-KtcQV3z3Izs_A",
   authDomain: "hairstyle2000-db0e8.firebaseapp.com",
   databaseURL: "https://hairstyle2000-db0e8-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "hairstyle2000-db0e8",
@@ -7,18 +7,23 @@ apiKey: "AIzaSyAC1VwxUwfk_Kbff8f0h-KtcQV3z3Izs_A",
   messagingSenderId: "312036850582",
   appId: "1:312036850582:web:116111861902d35d7f3bb7",
   measurementId: "G-2QV7ZYJ4XL"
-  };
+};
 
-  // Inizializza Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+// Inizializza Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 document.addEventListener('DOMContentLoaded', function() {
     // Variabili globali
     let allBookings = [];
     let filteredBookings = [];
+    
+    // Imposta la settimana corrente (da lunedì a domenica)
     let currentWeekStart = new Date();
-    currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1); // Inizia da lunedì
+    currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1);
+    if (currentWeekStart.getDay() === 0) { // Se è domenica
+        currentWeekStart.setDate(currentWeekStart.getDate() - 6); // Torna al lunedì precedente
+    }
     
     // Elementi DOM
     const bookingsList = document.getElementById('bookingsList');
@@ -48,8 +53,55 @@ document.addEventListener('DOMContentLoaded', function() {
     const addDateInput = document.getElementById('addDate');
     const addTimeSelect = document.getElementById('addTime');
     const addBarberSelect = document.getElementById('addBarber');
+    
+    // Elementi per giorni non disponibili
+    const manageUnavailableDaysBtn = document.getElementById('manageUnavailableDaysBtn');
+    const unavailableDaysModal = document.getElementById('unavailableDaysModal');
+    const closeUnavailableModal = document.getElementById('closeUnavailableModal');
+    const cancelUnavailableModal = document.getElementById('cancelUnavailableModal');
+    const addUnavailableDay = document.getElementById('addUnavailableDay');
+    const unavailableDateInput = document.getElementById('unavailableDate');
+    const unavailableBarberSelect = document.getElementById('unavailableBarber');
+    const unavailableReasonInput = document.getElementById('unavailableReason');
+    const unavailableDaysList = document.getElementById('unavailableDaysList');
+
+    // Debug: verifica se gli elementi esistono
+    console.log('manageUnavailableDaysBtn:', manageUnavailableDaysBtn);
+    console.log('unavailableDaysModal:', unavailableDaysModal);
 
     // Funzione per generare gli orari disponibili in base al barbiere e alla data
+        async function deleteOldBookings() {
+    console.log("Controllo e eliminazione prenotazioni vecchie...");
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Imposta l'ora a mezzanotte per il confronto
+
+    const db = firebase.firestore();
+    const batch = db.batch();
+
+    try {
+        const oldBookings = await db.collection("bookings")
+            .where("date", "<", formatDate(today))
+            .get();
+
+        if (oldBookings.empty) {
+            console.log("Nessuna prenotazione vecchia trovata da eliminare.");
+            return;
+        }
+
+        console.log(`Trovate ${oldBookings.size} prenotazioni vecchie. Inizio l'eliminazione...`);
+
+        oldBookings.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+
+        await batch.commit();
+        console.log("Tutte le prenotazioni vecchie sono state eliminate con successo!");
+
+    } catch (error) {
+        console.error("Errore durante l'eliminazione delle prenotazioni vecchie:", error);
+    }
+}
     async function updateAvailableTimes() {
         const selectedDate = addDateInput?.value;
         const selectedBarber = addBarberSelect?.value;
@@ -60,6 +112,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (!selectedDate || !selectedBarber) {
+            if(addTimeSelect) addTimeSelect.disabled = true;
+            return;
+        }
+
+        // Verifica se il giorno è non disponibile
+        const isUnavailable = await isDayUnavailable(selectedDate, selectedBarber);
+        if (isUnavailable) {
+            const option = document.createElement('option');
+            option.textContent = 'Giorno non disponibile';
+            option.disabled = true;
+            if(addTimeSelect) addTimeSelect.appendChild(option);
             if(addTimeSelect) addTimeSelect.disabled = true;
             return;
         }
@@ -185,10 +248,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Se la vista calendario è attiva, aggiorna il calendario
             if (calendarView && calendarView.style.display === 'block') {
                 renderCalendar();
+            } else {
+                // Forza il rendering del calendario anche se non è la vista attiva
+                renderCalendar();
             }
         } catch (error) {
             console.error('Errore durante il caricamento delle prenotazioni:', error);
-            showError('Impossibile caricare le prenotazioni. Controlla la console per i dettagli.');
+            showError('Impossibile caricare les prenotazioni. Controlla la console per i dettagli.');
         }
     }
     
@@ -224,11 +290,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Se la vista calendario è attiva, aggiorna il calendario
         if (calendarView && calendarView.style.display === 'block') {
             renderCalendar();
+             
+            
         }
     }
 
     // Funzione per visualizzare le prenotazioni in lista
     function renderBookings() {
+         deleteOldBookings()
         if (!bookingsList) return;
 
         if (filteredBookings.length === 0) {
@@ -352,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentWeekRange.textContent = `${startFormatted} - ${endFormatted}`;
     }
 
-    // Funzione per visualizzare le prenotazioni nel calendario
+    // Funzione per visualizzare les prenotazioni nel calendario
     function renderBookingsToCalendar(weekDates) {
         // Filtra le prenotazioni per la settimana corrente
         const weekBookings = filteredBookings.filter(booking => 
@@ -418,9 +487,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="detail-row">
                 <strong>Telefono:</strong> ${booking.phone}
-            </div>
-            <div class="detail-row">
-
             </div>
             <div class="detail-actions">
                 <button class="btn btn-delete" data-id="${booking.id}">
@@ -508,9 +574,229 @@ document.addEventListener('DOMContentLoaded', function() {
         showMessage(message, 'error');
     }
 
+    // Funzione per impostare le toggle della vista
+    function setupViewToggle() {
+        if (listViewBtn) {
+            listViewBtn.addEventListener('click', () => {
+                if(listView) listView.style.display = 'block';
+                if(calendarView) calendarView.style.display = 'none';
+                listViewBtn.classList.add('active');
+                if(calendarViewBtn) calendarViewBtn.classList.remove('active');
+            });
+        }
+        
+        if (calendarViewBtn) {
+            calendarViewBtn.addEventListener('click', () => {
+                if(listView) listView.style.display = 'none';
+                if(calendarView) calendarView.style.display = 'block';
+                if(listViewBtn) listViewBtn.classList.remove('active');
+                calendarViewBtn.classList.add('active');
+                renderCalendar();
+            });
+        }
+    }
+
+    // Funzione per cambiare la settimana visualizzata
+    function changeWeek(days) {
+        currentWeekStart.setDate(currentWeekStart.getDate() + days);
+        renderCalendar();
+    }
+
+    // Funzione per tornare alla settimana corrente
+    function goToToday() {
+        currentWeekStart = new Date();
+        currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1);
+        if (currentWeekStart.getDay() === 0) {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 6);
+        }
+        renderCalendar();
+    }
+
+    // FUNZIONI PER GIORNI NON DISPONIBILI
+
+if (manageUnavailableDaysBtn) {
+    manageUnavailableDaysBtn.addEventListener('click', function() {
+        console.log('Pulsante giorni non disponibili cliccato!');
+        
+        // Nascondi prima eventuali altri modal aperti
+        if (addBookingModal) addBookingModal.style.display = 'none';
+        
+        // Imposta la data di oggi
+        const today = new Date();
+        const todayISO = today.toISOString().split('T')[0];
+        if (unavailableDateInput) unavailableDateInput.value = todayISO;
+        
+        // CARICA I GIORNI NON DISPONIBILI - QUESTA RIGA MANCAVA!
+        loadUnavailableDays();
+        
+        // Mostra il modale
+        if (unavailableDaysModal) {
+            console.log('Mostro modale giorni non disponibili');
+            unavailableDaysModal.style.display = 'flex';
+        }
+    });
+}
+// Listener per chiudere il modale giorni non disponibili
+if (closeUnavailableModal) {
+    closeUnavailableModal.addEventListener('click', function() {
+        if (unavailableDaysModal) unavailableDaysModal.style.display = 'none';
+    });
+}
+
+// Listener per il pulsante "Annulla" nel modale giorni non disponibili
+if (cancelUnavailableModal) {
+    cancelUnavailableModal.addEventListener('click', function() {
+        if (unavailableDaysModal) unavailableDaysModal.style.display = 'none';
+    });
+}
+
+// Chiudi il modale cliccando fuori da esso
+window.addEventListener('click', function(event) {
+    if (addBookingModal && event.target === addBookingModal) {
+        addBookingModal.style.display = 'none';
+        if (addBookingForm) addBookingForm.reset();
+    }
+    if (unavailableDaysModal && event.target === unavailableDaysModal) {
+        unavailableDaysModal.style.display = 'none';
+    }
+});
+
+
+
+    // Listener per il pulsante "Annulla" nel modale giorni non disponibili
+    if (cancelUnavailableModal) {
+        cancelUnavailableModal.addEventListener('click', function() {
+            if (unavailableDaysModal) unavailableDaysModal.style.display = 'none';
+        });
+    }
+
+    // Listener per aggiungere un giorno non disponibile
+    if (addUnavailableDay) {
+        addUnavailableDay.addEventListener('click', async function() {
+            const date = unavailableDateInput.value;
+            const barber = unavailableBarberSelect.value;
+            const reason = unavailableReasonInput.value;
+            
+            if (!date) {
+                showError('Seleziona una data');
+                return;
+            }
+            
+            try {
+                // Salva nel database
+                await db.collection("unavailable_days").add({
+                    date: date,
+                    barber: barber,
+                    reason: reason,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showMessage('Giorno segnato come non disponibile', 'success');
+                loadUnavailableDays();
+                
+                // Resetta il form
+                unavailableReasonInput.value = '';
+            } catch (error) {
+                console.error('Errore durante il salvataggio:', error);
+                showError('Impossibile salvare. Controlla la console per i dettagli.');
+            }
+        });
+    }
+
+    // Funzione per caricare i giorni non disponibili
+    async function loadUnavailableDays() {
+        try {
+            const snapshot = await db.collection("unavailable_days")
+                .orderBy("date", "desc")
+                .get();
+            
+            if (snapshot.empty) {
+                unavailableDaysList.innerHTML = '<p>Nessun giorno segnato come non disponibile</p>';
+                return;
+            }
+            
+            unavailableDaysList.innerHTML = '';
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const dayElement = document.createElement('div');
+                dayElement.className = 'unavailable-day-item';
+                dayElement.innerHTML = `
+                    <div class="unavailable-day-info">
+                        <strong>${formatItalianDate(data.date)}</strong>
+                        <span>Barbiere: ${data.barber === 'both' ? 'Entrambi' : data.barber}</span>
+                        ${data.reason ? `<p>Motivo: ${data.reason}</p>` : ''}
+                    </div>
+                    <button class="btn btn-delete btn-small" data-id="${doc.id}">
+                        <i class="fas fa-trash"></i> Rimuovi
+                    </button>
+                `;
+                
+                unavailableDaysList.appendChild(dayElement);
+            });
+            
+            // Aggiungi event listener per i pulsanti di eliminazione
+            document.querySelectorAll('.unavailable-day-item .btn-delete').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const id = this.getAttribute('data-id');
+                    try {
+                        await db.collection("unavailable_days").doc(id).delete();
+                        showMessage('Giorno rimosso dalla lista non disponibili', 'success');
+                        loadUnavailableDays();
+                    } catch (error) {
+                        console.error('Errore durante l\'eliminazione:', error);
+                        showError('Impossibile eliminare. Controlla la console per i dettagli.');
+                    }
+                });
+            });
+            
+        } catch (error) {
+            console.error('Errore durante il caricamento:', error);
+            unavailableDaysList.innerHTML = `
+                <p style="color: red;">Errore di permessi. Controlla le regole di sicurezza di Firebase.</p>
+                <p>Configura le regole per permettere accesso a /unavailable_days</p>
+            `;
+        }
+    }
+
+    // Funzione per verificare se un giorno è non disponibile
+    async function isDayUnavailable(date, barber) {
+        try {
+            // Cerca nella collezione dei giorni non disponibili
+            const snapshot = await db.collection("unavailable_days")
+                .where("date", "==", date)
+                .get();
+            
+            if (snapshot.empty) {
+                return false;
+            }
+            
+            // Controlla se c'è una corrispondenza per il barbiere specificato
+            let isUnavailable = false;
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.barber === 'both' || data.barber === barber) {
+                    isUnavailable = true;
+                }
+            });
+            
+            return isUnavailable;
+        } catch (error) {
+            console.error('Errore durante la verifica:', error);
+            return false;
+        }
+    }
+
     // Inizializza le funzioni
     loadBookings();
     setupViewToggle();
+    
+    // Forza la visualizzazione della vista calendario all'apertura
+    setTimeout(() => {
+        if (calendarViewBtn) {
+            calendarViewBtn.click(); // Attiva la vista calendario
+        }
+    }, 100);
     
     // Listener per l'invio del form di aggiunta
     if (addBookingForm) {
@@ -553,41 +839,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // Funzione per impostare il toggle della vista
-    function setupViewToggle() {
-        if (listViewBtn) {
-            listViewBtn.addEventListener('click', () => {
-                if(listView) listView.style.display = 'block';
-                if(calendarView) calendarView.style.display = 'none';
-                listViewBtn.classList.add('active');
-                if(calendarViewBtn) calendarViewBtn.classList.remove('active');
-            });
-        }
-        
-        if (calendarViewBtn) {
-            calendarViewBtn.addEventListener('click', () => {
-                if(listView) listView.style.display = 'none';
-                if(calendarView) calendarView.style.display = 'block';
-                if(listViewBtn) listViewBtn.classList.remove('active');
-                calendarViewBtn.classList.add('active');
-                renderCalendar();
-            });
-        }
-    }
-
-    // Funzione per cambiare la settimana visualizzata
-    function changeWeek(days) {
-        currentWeekStart.setDate(currentWeekStart.getDate() + days);
-        renderCalendar();
-    }
-
-    // Funzione per tornare alla settimana corrente
-    function goToToday() {
-        currentWeekStart = new Date();
-        currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1);
-        renderCalendar();
-    }
     
     // Event listeners
     if (refreshBtn) refreshBtn.addEventListener('click', loadBookings);
@@ -601,6 +852,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (addBookingModal && event.target === addBookingModal) {
             addBookingModal.style.display = 'none';
             if (addBookingForm) addBookingForm.reset();
+        }
+        if (unavailableDaysModal && event.target === unavailableDaysModal) {
+            unavailableDaysModal.style.display = 'none';
         }
     });
 });

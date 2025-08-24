@@ -252,11 +252,13 @@
         <!-- Vista Calendario (unica vista) -->
         <div id="calendarView">
           <div class="calendar-header">
-            <div class="week-navigation">
-              <button class="btn btn-primary" id="prevWeek"><i class="fas fa-chevron-left"></i></button>
-              <div class="current-week-range" id="currentWeekRange"></div>
-              <button class="btn btn-primary" id="nextWeek"><i class="fas fa-chevron-right"></i></button>
-  
+    <div class="week-navigation-container">
+        <div class="week-navigation">
+            <button class="btn btn-primary" id="prevWeek"><i class="fas fa-chevron-left"></i></button>
+            <div class="current-week-range" id="currentWeekRange"></div>
+            <button class="btn btn-primary" id="nextWeek"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
           <div class="calendar-container">
             <div class="week-days-header">
               <div class="time-column-header">Orario</div>
@@ -269,6 +271,11 @@
           </div>
         </div>
       </div>
+          <div style="margin-top: 20px; text-align: center;">
+      <button class="btn btn-warning" id="manageUnavailableDaysBtn">
+        <i class="fas fa-calendar-times"></i> Gestisci giorni non disponibili
+      </button>
+
     </div>
   </main>
 
@@ -356,6 +363,51 @@
           </div>
       </form>
     </div>
+</div>
+<!-- Aggiungi questo codice prima della chiusura del tag </body> -->
+
+
+
+<!-- Modale per gestire giorni non disponibili -->
+<div id="unavailableDaysModal" class="unavailable-modal" style="display:none;">
+  <div class="unavailable-modal-content" style="max-width: 500px;">
+    <span class="close-btn" id="closeUnavailableModal">&times;</span>
+    <h2><i class="fas fa-calendar-times"></i> Gestisci giorni non disponibili</h2>
+    
+    
+    <div class="form-group">
+      <label for="unavailableDate">Seleziona data:</label>
+      <input type="date" id="unavailableDate">
+    </div>
+    
+    <div class="form-group">
+      <label for="unavailableBarber">Barbiere:</label>
+      <select id="unavailableBarber">
+        <option value="both">Entrambi i barbieri</option>
+        <option value="Nino">Solo Nino</option>
+        <option value="Antonio">Solo Antonio</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="unavailableReason">Motivo (opzionale):</label>
+      <textarea id="unavailableReason" rows="3" placeholder="Inserisci il motivo della non disponibilità"></textarea>
+    </div>
+    
+    <div class="form-actions">
+      <button class="btn btn-primary" id="addUnavailableDay">
+        <i class="fas fa-ban"></i> Rendi giorno non disponibile
+      </button>
+      <button class="btn btn-secondary" id="cancelUnavailableModal">
+        <i class="fas fa-times"></i> Annulla
+      </button>
+    </div>
+    
+    <div class="unavailable-days-list" style="margin-top: 20px;">
+      <h3>Giorni attualmente non disponibili</h3>
+      <div id="unavailableDaysList"></div>
+    </div>
+  </div>
 </div>
 
 
